@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <title>Sunrise</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Sunrise</h1>
+        <section class="alarm-section">
+            <h2>Alarm</h2>
+            <p>Current Alarm: <span id="current-alarm"></span></p>
+            <label for="alarm-time">Set Alarm:</label>
+            <input type="time" id="alarm-time">
+            <label for="alarm-enabled">Enabled:</label>
+            <input type="checkbox" id="alarm-enabled">
+        </section>
+        <section class="tasks-section">
+            <h2>Tasks</h2>
+            <div id="tasks-container">
+                <!-- Task buttons will be populated here -->
+            </div>
+        </section>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

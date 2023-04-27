@@ -1,0 +1,62 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+h1, h2 {
+    margin-bottom: 1rem;
+}
+
+.alarm-section, .tasks-section {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+input[type="time"], input[type="checkbox"] {
+    margin-left: 0.5rem;
+}
+
+#tasks-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-gap: 1rem;
+}
+
+button.task-button {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    height: 3rem;
+}
+
+button.task-button.active {
+    color: white;
+}
+
+input.task-button[type="color"] {
+    padding: 0.3rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    width: auto;
+    height: 3rem;
+}
+
+.task-button.active {
+    background-color: #75b977;
+}
