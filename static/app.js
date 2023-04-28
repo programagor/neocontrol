@@ -16,7 +16,7 @@ function formatAlarmTime(time) {
 function formatTimeUntil(seconds) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours} hours ${minutes} minutes until alarm`;
+    return `in ${hours} hours ${minutes} minutes`;
 }
 
 let updateAlarmRequest = null;
