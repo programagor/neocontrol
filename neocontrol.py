@@ -18,13 +18,13 @@ else:
             self.num_pixels = kwargs.get('led_count', 4)
 
         def begin(self):
-            print("Dummy strip: begin")
+            print(f"[{datetime.datetime.now()}] Dummy strip: begin")
 
         def setPixelColor(self, i, color_obj):
-            print(f"Dummy strip: set pixel color at index {i} to {color_obj}")
+            print(f"[{datetime.datetime.now()}] Dummy strip: set pixel color at index {i} to {color_obj}")
 
         def show(self):
-            print("Dummy strip: show")
+            print(f"[{datetime.datetime.now()}] Dummy strip: show")
 
         def numPixels(self):
             return self.num_pixels
@@ -79,46 +79,60 @@ for task_file in os.listdir('tasks'):
 
 def stop_worker_thread():
     global worker_thread, exit_event
+    print(f"[{datetime.datetime.now()}] stop_worker_thread() thread: {threading.get_ident()} {threading.current_thread().name}")
     if worker_thread and worker_thread.is_alive():
+        print(f"[{datetime.datetime.now()}] stop_worker_thread: setting exit event")
         exit_event.set()
+        print(f"[{datetime.datetime.now()}] stop_worker_thread: joining worker thread")
         worker_thread.join()
+        print(f"[{datetime.datetime.now()}] stop_worker_thread: worker thread joined")
         exit_event.clear()
+    print(f"[{datetime.datetime.now()}] stop_worker_thread: done")
 
 def alarm_triggered():
     global worker_thread, current_task, alarm_data, alarm_lock, task_lock, exit_event, strip
-    print("alarm_triggered")
+    print(f"[{datetime.datetime.now()}] alarm_triggered() thread: {threading.get_ident()} {threading.current_thread().name}")
     enabled = False
     with alarm_lock:
         enabled = alarm_data["enabled"]
+        print(f"[{datetime.datetime.now()}] alarm_triggered: alarm enabled: {enabled}")
     if enabled:
-        print("alarm_triggered: enabled")
+        print(f"[{datetime.datetime.now()}] alarm_triggered: enabled")
         with task_lock:
-            print("alarm_triggered: stopping worker thread")
+            print(f"[{datetime.datetime.now()}] alarm_triggered: stopping worker thread")
             stop_worker_thread()
             current_task = "sunrise"
             worker_thread = threading.Thread(target=TASKS[current_task], args=(strip, exit_event), daemon=True)
-            print("alarm_triggered: starting worker thread")
+            print(f"[{datetime.datetime.now()}] alarm_triggered: starting worker thread")
             worker_thread.start()
-            print("alarm_triggered: worker thread started")
+            print(f"[{datetime.datetime.now()}] alarm_triggered: worker thread started")
+    print(f"[{datetime.datetime.now()}] alarm_triggered: done")
 
 alarm_scheduler = schedule.every().day.at(alarm_data["time"]).do(alarm_triggered)
 
 def check_alarm():
     global alarm_scheduler, alarm_update_event
+    print(f"[{datetime.datetime.now()}] check_alarm() thread: {threading.get_ident()} {threading.current_thread().name}")
     while True:
-        print("check_alarm will run all pending jobs")
+        print(f"[{datetime.datetime.now()}] check_alarm will run all pending jobs")
         schedule.run_pending()
-        print("check_alarm ran all pending jobs")
+        print(f"[{datetime.datetime.now()}] check_alarm ran all pending jobs")
         next_run = schedule.idle_seconds()
-        print(f"check_alarm will run again in {next_run} seconds")
+        print(f"[{datetime.datetime.now()}] check_alarm will run again in {next_run} seconds")
         alarm_update_event.wait(next_run)
-        print("check_alarm was woken up by alarm_update_event or timeout")
-        alarm_update_event.clear()
+        if alarm_update_event.is_set():
+            print(f"[{datetime.datetime.now()}] check_alarm was woken up by alarm_update_event")
+            alarm_update_event.clear()
+        else:
+            print(f"[{datetime.datetime.now()}] check_alarm was woken up by schedule")
+        print(f"[{datetime.datetime.now()}] check_alarm will run again")
+    print(f"[{datetime.datetime.now()}] check_alarm: done")
 
 
-
+print(f"[{datetime.datetime.now()}] starting check_alarm thread")
 alarm_thread = threading.Thread(target=check_alarm, daemon=True)
 alarm_thread.start()
+print(f"[{datetime.datetime.now()}] check_alarm thread started")
 
 
 @app.route('/api/v1/alarm', methods=['POST'])
@@ -163,10 +177,13 @@ def set_task():
         return jsonify({"error": "Invalid task"}), 400
 
     with task_lock:
+        print(f"[{datetime.datetime.now()}] set_task: stopping worker thread")
         stop_worker_thread()
         current_task = task
         worker_thread = threading.Thread(target=TASKS[task], args=(strip, exit_event, arg), daemon=True)
+        print(f"[{datetime.datetime.now()}] set_task: starting worker thread with task {task}")
         worker_thread.start()
+        print(f"[{datetime.datetime.now()}] set_task: worker thread started")
 
     return jsonify({"task": current_task})
 
@@ -186,4 +203,6 @@ def index():
     return app.send_static_file('index.html')
 
 if __name__ == '__main__':
+    print(f"[{datetime.datetime.now()}] main thread: {threading.get_ident()} {threading.current_thread().name}")
     app.run(host="0.0.0.0", port=5000, debug=True)
+    print(f"[{datetime.datetime.now()}] main thread: done")

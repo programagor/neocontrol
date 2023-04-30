@@ -1,3 +1,14 @@
+let authKey = localStorage.getItem('authKey');
+
+if (!authKey) {
+    authKey = prompt('Please enter your auth key:');
+    
+    // Store the entered auth key in local storage
+    if (authKey) {
+      localStorage.setItem('authKey', authKey);
+    }
+}
+
 const currentAlarm = document.getElementById("current-alarm");
 const alarmTimeInput = document.getElementById("alarm-time");
 const alarmEnabledInput = document.getElementById("alarm-enabled");
