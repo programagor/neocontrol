@@ -60,7 +60,7 @@ alarm_lock = threading.Lock() # so only one worker at a time modifies alarm data
 exit_event = threading.Event() # to quit worker thread
 alarm_update_event = threading.Event() # to update alarm time or enabled status
 
-LED_COUNT = 120
+LED_COUNT = 240
 GPIO_PIN = 10
 STRIP_TYPE = ws.WS2811_STRIP_GRB
 BRIGHTNESS = 230
@@ -114,9 +114,13 @@ def check_alarm():
     global alarm_scheduler, alarm_update_event
     print(f"[{datetime.datetime.now()}] check_alarm() thread: {threading.get_ident()} {threading.current_thread().name}")
     while True:
+        #print all tasks in schedule queue (name, time until next run)
+        print(f"[{datetime.datetime.now()}] check_alarm: schedule queue: {schedule.jobs}")
         print(f"[{datetime.datetime.now()}] check_alarm will run all pending jobs")
         schedule.run_pending()
         print(f"[{datetime.datetime.now()}] check_alarm ran all pending jobs")
+        print(f"[{datetime.datetime.now()}] check_alarm: schedule queue: {schedule.jobs}")
+
         next_run = schedule.idle_seconds()
         print(f"[{datetime.datetime.now()}] check_alarm will run again in {next_run} seconds")
         alarm_update_event.wait(next_run)
@@ -140,19 +144,29 @@ def set_alarm():
     global alarm_data, alarm_scheduler
     data = request.get_json()
     
+    print(f"[{datetime.datetime.now()}] set_alarm() thread: {threading.get_ident()} {threading.current_thread().name}")
+    print(f"[{datetime.datetime.now()}] set_alarm: entering alarm_lock")
     with alarm_lock:
+        print(f"[{datetime.datetime.now()}] set_alarm: entered alarm_lock")
         if "time" in data:
-            # make sure alarm_data["time"] is in the format HH:MM (including leading zeros)
             try:
+                print(f"[{datetime.datetime.now()}] set_alarm: setting alarm time to {data['time']}")
                 alarm_data["time"] = datetime.datetime.strptime(data["time"], "%H:%M").strftime("%H:%M")
+                print(f"[{datetime.datetime.now()}] set_alarm: schedule queue before cancellation: {schedule.jobs}")
+                print(f"[{datetime.datetime.now()}] set_alarm: cancelling alarm_scheduler ({alarm_scheduler}))")
                 schedule.cancel_job(alarm_scheduler)
+                print(f"[{datetime.datetime.now()}] set_alarm: schedule queue after cancellation: {schedule.jobs}")
+                print(f"[{datetime.datetime.now()}] set_alarm: scheduling alarm_scheduler")
                 alarm_scheduler = schedule.every().day.at(alarm_data["time"]).do(alarm_triggered)
+                print(f"[{datetime.datetime.now()}] set_alarm: new schedule queue: {schedule.jobs}")
+                print(f"[{datetime.datetime.now()}] set_alarm: setting alarm_update_event")
                 alarm_update_event.set()
             except:
                 return jsonify({"error": "Invalid time format"}), 400
 
         if "enabled" in data:
             alarm_data["enabled"] = data["enabled"]
+    print(f"[{datetime.datetime.now()}] set_alarm: exiting alarm_lock")
 
     with open(ALARM_FILE, 'w') as f:
         json.dump(alarm_data, f)
@@ -204,5 +218,5 @@ def index():
 
 if __name__ == '__main__':
     print(f"[{datetime.datetime.now()}] main thread: {threading.get_ident()} {threading.current_thread().name}")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
     print(f"[{datetime.datetime.now()}] main thread: done")

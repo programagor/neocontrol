@@ -32,7 +32,11 @@ function formatTimeUntil(seconds) {
 
 let updateAlarmRequest = null;
 function updateAlarm() {
-    updateAlarmRequest = fetch("/api/v1/alarm")
+    updateAlarmRequest = fetch("/api/v1/alarm",
+        {headers: {
+            'Authorization': `Bearer ${authKey}`,
+            },
+        })
         .then((response) => response.json())
         .then((data) => {
             const alarmTime = formatAlarmTime(data[0].time)
@@ -47,7 +51,11 @@ function updateAlarm() {
 
 let updateTaskRequest = null;
 function updateTasks() {
-    updateTaskRequest = fetch("/api/v1/task")
+    updateTaskRequest = fetch("/api/v1/task",
+        {headers: {
+            'Authorization': `Bearer ${authKey}`,
+            },
+        })
         .then((response) => response.json())
         .then((data) => {
             const taskButtons = document.querySelectorAll(".task-button");
@@ -63,7 +71,11 @@ function updateTasks() {
 
 let setTaskRequest = null;
 function initializeTasks() {
-    fetch("/api/v1/tasks")
+    fetch("/api/v1/tasks",
+        {headers: {
+            'Authorization': `Bearer ${authKey}`,
+            },
+        })
         .then((response) => response.json())
         .then((data) => {
             data.tasks.forEach((task) => {
@@ -78,7 +90,7 @@ function initializeTasks() {
                         const rgb = event.target.value;
                         setTaskRequest = fetch("/api/v1/task", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
                             body: JSON.stringify({ task: "static", arg: [parseInt(rgb.slice(1, 3), 16), parseInt(rgb.slice(3, 5), 16), parseInt(rgb.slice(5, 7), 16)] }),
                         });
                         setTaskRequest.then(() => {
@@ -99,7 +111,7 @@ function initializeTasks() {
                         }
                         setTaskRequest = fetch("/api/v1/task", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
                             body: JSON.stringify({ task: task }),
                         });
                         setTaskRequest.then(() => {
@@ -125,7 +137,7 @@ alarmTimeInput.addEventListener("change", () => {
     clearInterval(alarmUpdateInterval);
     setAlarmRequest = fetch("/api/v1/alarm", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
         body: JSON.stringify({ time: alarmTimeInput.value, enabled: alarmEnabledInput.checked }),
     });
     setAlarmRequest.then(() => {
@@ -140,7 +152,7 @@ alarmEnabledInput.addEventListener("change", () => {
     clearInterval(alarmUpdateInterval);
     setAlarmEnabledRequest = fetch("/api/v1/alarm", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
         body: JSON.stringify({ time: alarmTimeInput.value, enabled: alarmEnabledInput.checked }),
     });
     setAlarmEnabledRequest.then(() => {
