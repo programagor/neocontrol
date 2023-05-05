@@ -82,7 +82,9 @@ def hsv_to_rgb(h, s, v):
     if i == 5: return (v, p, q)
 
 def fill(strip: ws.PixelStrip, color = None):
-    color_obj = ws.Color(*color)
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i,color_obj)
-    strip.show()
+    if color is not None:
+        print(f"Fill with color {color}")
+        color_obj = ws.Color(*color)
+        for i in range(strip.numPixels()):
+            strip.setPixelColor(i,color_obj)
+        strip.show()
