@@ -6,7 +6,6 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     temp_start = 50.0
     temp_end = 6000.0
 
-
     start_time = time.time()
     elapsed_time = 0.0
 
@@ -20,4 +19,3 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
             strip.setPixelColor(i,color_obj)
         strip.show()
         exit_event.wait(0.1)
-    exit_event.wait()
