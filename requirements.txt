@@ -1,5 +1,7 @@
 flask
+schedule
 gunicorn
 rpi_ws281x
 numpy
 gunicorn
+PyJWT
