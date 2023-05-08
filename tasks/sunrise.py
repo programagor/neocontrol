@@ -19,3 +19,6 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
             strip.setPixelColor(i,color_obj)
         strip.show()
         exit_event.wait(0.1)
+    exit_event.wait(30*60)
+    color = (0,0,0)
+    fill(strip,color)
