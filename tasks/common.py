@@ -1,7 +1,8 @@
 import importlib
 import time
-import numpy as np
+#import numpy as np
 import threading
+import math
 
 # Check if rpi_ws281x library is available
 rpi_ws281x_spec = importlib.util.find_spec("rpi_ws281x")
@@ -45,7 +46,7 @@ def black_body_rgb(temp,brightness):
     if temp <= 66:
         r = 255
         g = temp
-        g = 99.4708025861 * np.log(g) - 161.1195681661
+        g = 99.4708025861 * math.log(g) - 161.1195681661
     else:
         r = temp - 60
         r = 329.698727446 * (r ** -0.1332047592)
@@ -58,7 +59,7 @@ def black_body_rgb(temp,brightness):
         b = 0
     else:
         b = temp - 10
-        b = 138.5177312231 * np.log(b) - 305.0447927307
+        b = 138.5177312231 * math.log(b) - 305.0447927307
 
     r = max(min(r, 255), 0)
     g = max(min(g, 255), 0)
