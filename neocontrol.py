@@ -63,7 +63,7 @@ alarm_update_event = threading.Event() # to update alarm time or enabled status
 LED_COUNT = 240
 GPIO_PIN = 10
 STRIP_TYPE = ws.WS2811_STRIP_GRB
-BRIGHTNESS = 230
+BRIGHTNESS = 255
 TARGET_FREQ = 1200000
 DMA = 10
 
