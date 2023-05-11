@@ -3,8 +3,8 @@ from .common import *
 def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
 
     duration = 2.0 * 60
-    temp_start = 6000.0
-    temp_end = 50.0
+    temp_start = 50.0
+    temp_end = 6000.0
 
     start_time = time.time()
     elapsed_time = 0.0
