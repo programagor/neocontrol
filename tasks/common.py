@@ -3,6 +3,7 @@ import time
 #import numpy as np
 import threading
 import math
+import numpy as np
 
 # Check if rpi_ws281x library is available
 rpi_ws281x_spec = importlib.util.find_spec("rpi_ws281x")
@@ -65,7 +66,7 @@ def black_body_rgb(temp,brightness):
     g = max(min(g, 255), 0)
     b = max(min(b, 255), 0)
 
-    return int(r*brightness), int(g*brightness), int(b*brightness)
+    return r*brightness, g*brightness, b*brightness
 
 # Function to calculate RGB from HSV
 def hsv_to_rgb(h, s, v):
