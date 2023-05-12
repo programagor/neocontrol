@@ -19,7 +19,8 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         color = np.clip(color,0.0,255.0)
         color = np.array(color,dtype=np.uint8)
         for i in range(strip.numPixels()):
-            color_obj = ws.Color(*color[i])
+            color_tuple = tuple(color[i])
+            color_obj = ws.Color(*color_tuple)
             strip.setPixelColor(i,color_obj)
         strip.show()
         exit_event.wait(0.1)
