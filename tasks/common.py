@@ -4,6 +4,7 @@ import time
 import threading
 import math
 import numpy as np
+import random
 
 # Check if rpi_ws281x library is available
 rpi_ws281x_spec = importlib.util.find_spec("rpi_ws281x")
