@@ -38,12 +38,12 @@ else:
         "WS2811_STRIP_GRB": "Dummy_WS2811_STRIP_GRB"
     })
     
-
+# Function to calculate RGB from black body temperature
+# Source: https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
 def black_body_rgb(temp,brightness):
     temp = temp / 100.0
     brightness = max(0,min(1,brightness))
     r, g, b = 0, 0, 0
-
 
     if temp <= 66:
         r = 255
@@ -63,10 +63,6 @@ def black_body_rgb(temp,brightness):
         b = temp - 10
         b = 138.5177312231 * math.log(b) - 305.0447927307
 
-    r = max(min(r, 255), 0)
-    g = max(min(g, 255), 0)
-    b = max(min(b, 255), 0)
-
     return r*brightness, g*brightness, b*brightness
 
 # Function to calculate RGB from HSV
@@ -84,6 +80,7 @@ def hsv_to_rgb(h, s, v):
     if i == 4: return (t, p, v)
     if i == 5: return (v, p, q)
 
+# Function to fill the whole strip with a single colour
 def fill(strip: ws.PixelStrip, color = None):
     if color is not None:
         print(f"Fill with color {color}")
