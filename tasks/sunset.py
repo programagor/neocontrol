@@ -3,8 +3,8 @@ from .common import *
 def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
 
     duration = 2.0 * 60
-    temp_start = 100.0
-    temp_end = 4000.0
+    temp_start = 500.0
+    temp_end = 3500.0
 
     temp_curve = 1.5
     bright_curve = 1.0
@@ -21,21 +21,21 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         # How far through the duration are we?
         time_frac = elapsed_time / duration
         # Calculate the current temperature
-        current_temp = temp_start + (1-time_frac)**1.5 * (temp_end - temp_start)
+        current_temp = temp_start + (1-time_frac)**temp_curve * (temp_end - temp_start)
         # Calculate the colour from the temperature (plus brightness from time)
-        color = black_body_rgb(current_temp,(1-time_frac)**1.0)
-        # Add the random noise to the colour
+        color = black_body_rgb(current_temp,(1-time_frac)**bright_curve)
+        # Add the random noise to the colour:
         # First tile the colour array to match the number of pixels
         # Then add the noise
-        # Then clip to 0-255
-        color = np.clip(np.tile(np.array(color),(strip.numPixels(),1)) + jitter,0.0,255.0)
+        # Clamping to 0-255 is done later in the float_to_int function
+        colors = np.tile(np.array(color),(strip.numPixels(),1)) + jitter
 
         # Set the colour of each pixel
         for i in range(strip.numPixels()):
             # Convert the np.array of floats to a tuple of ints
-            color_tuple = tuple(map(int,tuple(color[i])))
+            color =  float_to_int(colors[i])
             # because the ws.Color constructor expects that
-            color_obj = ws.Color(*color_tuple)
+            color_obj = ws.Color(*color)
             # Set the pixel colour
             strip.setPixelColor(i,color_obj)
         # When all the pixels are set, send the data to the LEDs

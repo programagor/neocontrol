@@ -40,7 +40,7 @@ else:
     
 # Function to calculate RGB from black body temperature
 # Source: https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
-def black_body_rgb(temp,brightness):
+def black_body_rgb(temp,brightness=1.0):
     temp = temp / 100.0
     brightness = max(0,min(1,brightness))
     r, g, b = 0, 0, 0
@@ -64,6 +64,10 @@ def black_body_rgb(temp,brightness):
         b = 138.5177312231 * math.log(b) - 305.0447927307
 
     return r*brightness, g*brightness, b*brightness
+
+# Function to convert float RGB to int RGB and clamp values to 0-255
+def float_to_int(color):
+    return tuple(map(lambda x: max(0,min(255,int(x))),color))
 
 # Function to calculate RGB from HSV
 def hsv_to_rgb(h, s, v):
