@@ -45,6 +45,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         # The loop takes time anyway, but we don't want to starve the HTTP server
         # Update the elapsed time and loop again
         elapsed_time = time.time() - start_time
-    # At the end of the sunset sequence, turn off the LEDs
-    color = (0,0,0)
-    fill(strip,color)
+    # At the end of the sunset sequence, turn off the LEDs.
+    if not exit_event.is_set():
+        color = (0,0,0)
+        fill(strip,color)
