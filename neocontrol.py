@@ -254,7 +254,9 @@ def get_task():
 # Getting all available tasks
 @app.route('/api/v1/tasks', methods=['GET'])
 def get_tasks():
-    return jsonify({"tasks": list(TASKS.keys())})
+    # Order TASKS.keys() alphabetically and return it as a list
+    tasks = list(TASKS.keys()).sort()
+    return jsonify({"tasks": tasks})
 
 # Frontend
 @app.route('/')
