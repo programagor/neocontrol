@@ -1,8 +1,8 @@
 from .common import *
 
 def rainbow(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
-    t_rate = 0.04
-    i_rate = 0.003
+    t_rate = 0.015
+    i_rate = 0.002
     start_time = time.time()
     elapsed_time = 0
     while not exit_event.is_set():
