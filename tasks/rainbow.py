@@ -8,7 +8,7 @@ def rainbow(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     while not exit_event.is_set():
         for i in range(strip.numPixels()):
             # Strip has U topology, so loop back in the middle
-            if i < strip.numPixels():
+            if i < strip.numPixels() / 2:
                 pos = i
             else:
                 pos = strip.numPixels() - i
