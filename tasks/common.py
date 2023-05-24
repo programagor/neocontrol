@@ -80,6 +80,31 @@ def float_to_int(color):
     """Function to convert float RGB to int RGB and clamp values to 0-255"""
     return tuple(map(lambda x: max(0,min(255,int(x))),color))
 
+def packed24_to_rgb(packed):
+    """Function to convert packed 24-bit RGB to tuple of ints"""
+    return (packed >> 16) & 0xFF, (packed >> 8) & 0xFF, packed & 0xFF
+
+def strip_to_rgb(strip: ws.PixelStrip):
+    """Function to convert strip to list of RGB tuples"""
+    color_data = strip.getPixels()
+    return [packed24_to_rgb(color_data[i]) for i in range(strip.numPixels())]
+
+def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list, duration: float):
+    """Function to interpolate between initial strip state and final strip state"""
+    rgb_data = strip_to_rgb(strip)
+    start_time = time.time()
+    elapsed_time = 0
+    print(f"[{datetime.datetime.now()}] Interpolate strip over {duration} seconds")
+    while elapsed_time < duration and not exit_event.is_set():
+        frac = elapsed_time / duration
+        current = np.array(rgb_data)+frac*(np.array(final_colors)-np.array(rgb_data))
+        for i in range(strip.numPixels()):
+            color = float_to_int(current[i])
+            color_obj = ws.Color(*color)
+            strip.setPixelColor(i,color_obj)
+        strip.show()
+        elapsed_time = time.time() - start_time
+    print(f"[{datetime.datetime.now()}] Interpolation finished")
 
 def hsv_to_rgb(hue, sat, val):
     """Function to calculate RGB from HSV
