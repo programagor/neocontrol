@@ -89,7 +89,7 @@ def strip_to_rgb(strip: ws.PixelStrip):
     color_data = strip.getPixels()
     return [packed24_to_rgb(color_data[i]) for i in range(strip.numPixels())]
 
-def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float):
+def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float, curve: float = 0.5):
     """Function to interpolate between initial strip state and final strip state"""
     jitter = np.random.rand(strip.numPixels(),3) - 0.5
     rgb_data = strip_to_rgb(strip)
@@ -97,7 +97,7 @@ def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_co
     elapsed_time = 0
     print(f"[{datetime.datetime.now()}] Interpolate strip over {duration} seconds")
     while elapsed_time < duration and not exit_event.is_set():
-        frac = elapsed_time / duration
+        frac = (elapsed_time / duration)**curve
         current = np.array(rgb_data)+frac*(np.array(final_colors)-np.array(rgb_data)) + jitter
         for i in range(strip.numPixels()):
             color = float_to_int(current[i])
