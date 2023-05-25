@@ -98,8 +98,8 @@ def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_co
     elapsed_time = 0
     print(f"[{datetime.datetime.now()}] Interpolate strip over {duration} seconds")
     while elapsed_time < duration and not exit_event.is_set():
-        frac = (elapsed_time / duration)**curve
-        current = rgb_data+frac*diff + jitter
+        frac = int(((elapsed_time / duration)**curve)*16536)
+        current = rgb_data+(frac*diff)//16536 + jitter
         current = current.astype(int)
         current >>= 8
         for i in range(strip.numPixels()):
