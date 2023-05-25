@@ -50,6 +50,10 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     # After the sunrise sequence is finished, wait 30 minutes and then turn off the LEDs
     exit_event.wait(30*60)
     # Only turn off the LEDs if the exit event hasn't been set
-    if not exit_event.is_set():
-        color = (0,0,0)
-        fill(strip,color)
+    if exit_event.is_set():
+        return
+    color = (0,0,0)
+    interpolate_strip(strip,exit_event,[color]*strip.numPixels(),10.0)
+    if exit_event.is_set():
+        return
+    fill(strip,color)
