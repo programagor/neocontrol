@@ -51,7 +51,6 @@ def black_body_rgb(temp,brightness=1.0):
     temp = temp / 100.0
     brightness = max(0,min(1,brightness))
     red, grn, blu = 0, 0, 0
-
     if temp <= 66:
         red = 255
         grn = temp
@@ -61,7 +60,6 @@ def black_body_rgb(temp,brightness=1.0):
         red = 329.698727446 * (red ** -0.1332047592)
         grn = temp - 60
         grn = 288.1221695283 * (grn ** -0.0755148492)
-
     if temp >= 66:
         blu = 255
     elif temp <= 19:
@@ -91,14 +89,19 @@ def strip_to_rgb(strip: ws.PixelStrip):
 
 def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float, curve: float = 0.5):
     """Function to interpolate between initial strip state and final strip state"""
-    jitter = np.random.rand(strip.numPixels(),3) - 0.5
+    jitter = np.random.randint(-128,128,(strip.numPixels(),3))
     rgb_data = strip_to_rgb(strip)
+    rgb_data = np.array(rgb_data)*256
+    final_colors = np.array(final_colors)*256
+    diff = final_colors-rgb_data
     start_time = time.time()
     elapsed_time = 0
     print(f"[{datetime.datetime.now()}] Interpolate strip over {duration} seconds")
     while elapsed_time < duration and not exit_event.is_set():
         frac = (elapsed_time / duration)**curve
-        current = np.array(rgb_data)+frac*(np.array(final_colors)-np.array(rgb_data)) + jitter
+        current = rgb_data+frac*diff + jitter
+        current = current.astype(int)
+        current >>= 8
         for i in range(strip.numPixels()):
             color = float_to_int(current[i])
             color_obj = ws.Color(*color)
