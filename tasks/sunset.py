@@ -1,20 +1,22 @@
 from .common import *
 
 def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
-
+    """Sunset sequence"""
     duration = 2.0 * 60
-    temp_start = 500.0
-    temp_end = 3500.0
+    temp_start = 3500.0
+    temp_end = 500.0
 
     temp_curve = 1.5
     bright_curve = 1.0
 
     # First get the current strip state
     current_rgb = strip_to_rgb(strip)
-    # Calculate the average brightness
+    # Calculate the average brightness- of the current state
     initial_brightness = np.mean(current_rgb)/255.0
 
-    initial_color = black_body_rgb(temp_end,initial_brightness)
+    # TODO: estimate the current temperature from the current state
+    # in the meantime, just use the start temperature
+    initial_color = black_body_rgb(temp_start,initial_brightness)
 
     interpolate_strip(strip,exit_event,[initial_color]*strip.numPixels(),10.0)
 
@@ -30,7 +32,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         # How far through the duration are we?
         time_frac = elapsed_time / duration
         # Calculate the current temperature
-        current_temp = temp_start + (1-time_frac)**temp_curve * (temp_end - temp_start)
+        current_temp = temp_end + time_frac**temp_curve * (temp_start - temp_end)
         # Calculate the colour from the temperature (plus brightness from time)
         color = black_body_rgb(current_temp,((1-time_frac)**bright_curve)*initial_brightness)
         # Add the random noise to the colour:

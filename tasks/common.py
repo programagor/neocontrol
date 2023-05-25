@@ -89,15 +89,16 @@ def strip_to_rgb(strip: ws.PixelStrip):
     color_data = strip.getPixels()
     return [packed24_to_rgb(color_data[i]) for i in range(strip.numPixels())]
 
-def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list, duration: float):
+def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float):
     """Function to interpolate between initial strip state and final strip state"""
+    jitter = np.random.rand(strip.numPixels(),3) - 0.5
     rgb_data = strip_to_rgb(strip)
     start_time = time.time()
     elapsed_time = 0
     print(f"[{datetime.datetime.now()}] Interpolate strip over {duration} seconds")
     while elapsed_time < duration and not exit_event.is_set():
         frac = elapsed_time / duration
-        current = np.array(rgb_data)+frac*(np.array(final_colors)-np.array(rgb_data))
+        current = np.array(rgb_data)+frac*(np.array(final_colors)-np.array(rgb_data)) + jitter
         for i in range(strip.numPixels()):
             color = float_to_int(current[i])
             color_obj = ws.Color(*color)
@@ -114,7 +115,9 @@ def hsv_to_rgb(hue, sat, val):
         return result
     c_1 = int(hue*6.0)
     c_2 = (hue*6.0) - c_1
-    p_1,p_2,p_3 = int(255*(val*(1.0 - sat))), int(255*(val*(1.0 - sat*c_2))), int(255*(val*(1.0 - sat*(1.0 - c_2))))
+    p_1 = int(255*(val*(1.0 - sat)))
+    p_2 = int(255*(val*(1.0 - sat*c_2)))
+    p_3 = int(255*(val*(1.0 - sat*(1.0 - c_2))))
     val = int(255*val)
     switcher = {
         0: (val, p_3, p_1),
