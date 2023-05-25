@@ -32,7 +32,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         # How far through the duration are we?
         time_frac = elapsed_time / duration
         # Calculate the current temperature
-        current_temp = temp_end + time_frac**temp_curve * (temp_start - temp_end)
+        current_temp = temp_start + time_frac**temp_curve * (temp_end - temp_start)
         # Calculate the colour from the temperature (plus brightness from time)
         color = black_body_rgb(current_temp,((1-time_frac)**bright_curve)*initial_brightness)
         # Add the random noise to the colour:
