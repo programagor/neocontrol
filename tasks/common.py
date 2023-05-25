@@ -104,6 +104,7 @@ def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_co
             color_obj = ws.Color(*color)
             strip.setPixelColor(i,color_obj)
         strip.show()
+        exit_event.wait(0.01)
         elapsed_time = time.time() - start_time
     print(f"[{datetime.datetime.now()}] Interpolation finished")
 

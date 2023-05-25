@@ -3,7 +3,7 @@ from .common import *
 def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     """Sunset sequence"""
     duration = 2.0 * 60
-    temp_start = 3500.0
+    temp_start = 2500.0
     temp_end = 500.0
 
     temp_curve = 1.5
@@ -52,7 +52,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         # When all the pixels are set, send the data to the LEDs
         strip.show()
         # Wait a bit before looping again
-        exit_event.wait(0.1)
+        exit_event.wait(0.01)
         # The loop takes time anyway, but we don't want to starve the HTTP server
         # Update the elapsed time and loop again
         elapsed_time = time.time() - start_time
