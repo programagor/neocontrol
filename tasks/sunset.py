@@ -25,7 +25,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
 
     # Prepare random noise for each pixel and colour channel
     # This is to break up banding in the gradient (all LEDs changing at once)
-    jitter = np.random.rand(strip.numPixels(),3) - 0.5
+    jitter = np.random.randint(-128,128,(strip.numPixels(),3))
 
     # Loop until the exit event is set or the duration is reached
     while elapsed_time < duration and not exit_event.is_set():
@@ -35,16 +35,18 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
         current_temp = temp_start + time_frac**temp_curve * (temp_end - temp_start)
         # Calculate the colour from the temperature (plus brightness from time)
         color = black_body_rgb(current_temp,((1-time_frac)**bright_curve)*initial_brightness)
-        # Add the random noise to the colour:
-        # First tile the colour array to match the number of pixels
-        # Then add the noise
-        # Clamping to 0-255 is done later in the float_to_int function
-        colors = np.tile(np.array(color),(strip.numPixels(),1)) + jitter
+        # use fixed point arithmetic
+        # instead of dealing with floats, which are slow, we use integers scaled up by 256
+        color = tuple(map(lambda x: int(x*256),color))
+        # Add the random noise to the colour
+        colors = np.clip(np.tile(color,(strip.numPixels(),1)) + jitter , 0, 65535)
+        # shift each number to the right by 8 bits (divide by 256)
+        colors >>= 8
 
         # Set the colour of each pixel
         for i in range(strip.numPixels()):
             # Convert the np.array of floats to a tuple of ints
-            color =  float_to_int(colors[i])
+            color = float_to_int(colors[i])
             # because the ws.Color constructor expects that
             color_obj = ws.Color(*color)
             # Set the pixel colour
