@@ -69,7 +69,8 @@ def black_body_rgb(temp,brightness=1.0):
         blu = 138.5177312231 * math.log(blu) - 305.0447927307
     return red*brightness, grn*brightness, blu*brightness
 
-def generate_temp_lut(min_temp=500, max_temp=25000, step=0.03):
+def generate_temp_lut(min_temp=500, max_temp=25000, step=0.02):
+    """Function to generate a lookup table for black body temperature estimation"""
     lut = {}
 
     temp = min_temp
