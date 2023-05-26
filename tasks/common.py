@@ -69,10 +69,26 @@ def black_body_rgb(temp,brightness=1.0):
         blu = 138.5177312231 * math.log(blu) - 305.0447927307
     return red*brightness, grn*brightness, blu*brightness
 
-def rgb_black_body(rgb=(255,255,255)):
+def generate_temp_lut(min_temp=500, max_temp=25000, step=0.03):
+    lut = {}
+
+    temp = min_temp
+    while temp <= max_temp:
+        rgb = black_body_rgb(temp)
+        #lut[rgb] = temp
+        #only keep 2 decimal places
+        lut[rgb] = int(round(temp, 0))
+        temp *= 1+step
+
+    return lut
+
+temp_lut = generate_temp_lut()
+
+
+def rgb_black_body(target_rgb=(255,255,255)):
     """Function to estimate black body temperature from RGB"""
-    # TODO
-    return 6600
+    closest_rgb = min(temp_lut.keys(), key=lambda rgb: (rgb[0] - target_rgb[0]) ** 2 + (rgb[1] - target_rgb[1]) ** 2 + (rgb[2] - target_rgb[2]) ** 2)
+    return temp_lut[closest_rgb]
 
 def float_to_int(color):
     """Function to convert float RGB to int RGB and clamp values to 0-255"""
@@ -86,6 +102,20 @@ def strip_to_rgb(strip: ws.PixelStrip):
     """Function to convert strip to list of RGB tuples"""
     color_data = strip.getPixels()
     return [packed24_to_rgb(color_data[i]) for i in range(strip.numPixels())]
+
+def strip_to_temp(strip: ws.PixelStrip):
+    """Function to convert strip to average black body temperature"""
+    rgb_data = strip_to_rgb(strip)
+    # Find the average colour of the strip
+    avg_color = np.mean(rgb_data,axis=0)
+    # scale it so that the largest component is 255
+    if(max(avg_color) > 0):
+        avg_color *= 255.0/max(avg_color)
+    # convert to tuple of ints
+    avg_color = tuple(map(int,avg_color))
+    # estimate the temperature from the average colour
+    avg_color = rgb_black_body(avg_color)
+    return avg_color
 
 def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float, curve: float = 0.5):
     """Function to interpolate between initial strip state and final strip state"""

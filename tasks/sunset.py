@@ -3,7 +3,6 @@ from .common import *
 def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     """Sunset sequence"""
     duration = 2.0 * 60
-    temp_start = 2500.0
     temp_end = 500.0
 
     temp_curve = 1.5
@@ -14,8 +13,9 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     # Calculate the average brightness- of the current state
     initial_brightness = np.mean(current_rgb)/255.0
 
-    # TODO: estimate the current temperature from the current state
-    # in the meantime, just use the start temperature
+    # estimate the current temperature from the current state
+    temp_start = strip_to_temp(strip)
+
     initial_color = black_body_rgb(temp_start,initial_brightness)
 
     interpolate_strip(strip,exit_event,[initial_color]*strip.numPixels(),10.0)
