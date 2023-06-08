@@ -6,7 +6,7 @@ def sunset(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     temp_end = 500.0
 
     temp_curve = 1.5
-    bright_curve = 1.0
+    bright_curve = 1.5
 
     # First get the current strip state
     current_rgb = strip_to_rgb(strip)
