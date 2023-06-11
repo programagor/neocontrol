@@ -6,38 +6,7 @@ import datetime
 import json
 import os
 import sys
-
-# Check if rpi_ws281x library is available
-rpi_ws281x_spec = importlib.util.find_spec("rpi_ws281x")
-if rpi_ws281x_spec is not None:
-    import rpi_ws281x as ws
-else:
-    # Define dummy class for local testing
-    class DummyPixelStrip:
-        def __init__(self, *args, **kwargs):
-            self.num_pixels = kwargs.get('led_count', 4)
-
-        def begin(self):
-            print(f"[{datetime.datetime.now()}] Dummy strip: begin")
-
-        def setPixelColor(self, i, color_obj):
-            print(f"[{datetime.datetime.now()}] Dummy strip: set pixel color at index {i} to {color_obj}")
-
-        def show(self):
-            print(f"[{datetime.datetime.now()}] Dummy strip: show")
-
-        def numPixels(self):
-            return self.num_pixels
-
-    def DummyColor(*color):
-        return color
-
-    # Replace rpi_ws281x with dummy implementation
-    ws = type("Dummy_rpi_ws281x", (object,), {
-        "PixelStrip": DummyPixelStrip,
-        "Color": DummyColor,
-        "WS2811_STRIP_GRB": "Dummy_WS2811_STRIP_GRB"
-    })
+from tasks.common import ws
 
 # Create instance of the Flask app
 app = Flask(__name__, static_folder='static', static_url_path='')
@@ -53,8 +22,8 @@ else:
     with open(ALARM_FILE, 'w') as f:
         json.dump(alarm_data, f)
 
-worker_thread = None                    # This thread controls the LEDs
-current_task = None                     # Name of the currently running task
+worker_thread : threading.Thread = None                    # This thread controls the LEDs
+current_task : str = None                     # Name of the currently running task
 task_lock = threading.Lock()            # so only one worker at a time modifies which task is running
 alarm_lock = threading.Lock()           # so only one worker at a time modifies alarm data
 exit_event = threading.Event()          # to quit worker thread
