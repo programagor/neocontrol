@@ -7,11 +7,12 @@ def rainbow(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     elapsed_time = 0
     while not exit_event.is_set():
         for i in range(strip.numPixels()):
-            # Strip has U topology, so loop back in the middle
-            if i < strip.numPixels() / 2:
-                pos = i
+            # Strip has zigzag topology, so loop back every 120 pixels
+            j = i % 240
+            if j < 120:
+                pos = j
             else:
-                pos = strip.numPixels() - i
+                pos = 240 - j
             # hue progresses along the strip (i) and with time (elapsed_time)
             # saturation and value are always 1 (full)
             color = hsv_to_rgb(elapsed_time*t_rate+pos*i_rate,1,1)
