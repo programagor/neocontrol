@@ -6,7 +6,7 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     temp_start = 500.0
     temp_end = 6600.0
 
-    temp_curve = 1.5
+    temp_curve = 1.4
     bright_curve = 1.0
 
     start_time = time.time()
