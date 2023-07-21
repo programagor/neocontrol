@@ -120,7 +120,7 @@ def strip_to_temp(strip: ws.PixelStrip):
 
 def interpolate_strip(strip: ws.PixelStrip, exit_event:threading.Event, final_colors: list[tuple[int,int,int]], duration: float, curve: float = 0.5):
     """Function to interpolate between initial strip state and final strip state"""
-    jitter = np.random.randint(-128,128,(strip.numPixels(),3))
+    jitter = np.random.randint(0,255,(strip.numPixels(),3))
     rgb_data = strip_to_rgb(strip)
     rgb_data = np.array(rgb_data)*256
     final_colors = np.array(final_colors)*256
