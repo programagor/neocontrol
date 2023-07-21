@@ -33,6 +33,10 @@ except ImportError:
         def numPixels(self): # pylint: disable=invalid-name
             """Dummy numPixels method"""
             return self.num_pixels
+        
+        def getPixels(self):
+            """Dummy getPixels method"""
+            return [0]*self.num_pixels
 
     def DummyColor(*color): # pylint: disable=invalid-name
         """Dummy Color method"""
