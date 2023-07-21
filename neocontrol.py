@@ -29,7 +29,7 @@ alarm_lock = threading.Lock()           # so only one worker at a time modifies 
 exit_event = threading.Event()          # to quit worker thread
 alarm_update_event = threading.Event()  # to update alarm time or enabled status
 
-LED_COUNT = 240
+LED_COUNT = 120 * 3
 GPIO_PIN = 10 # Pin to which the LED strip is connected
 STRIP_TYPE = ws.WS2811_STRIP_GRB
 BRIGHTNESS = 255 # 0-255
