@@ -7,6 +7,6 @@ def dim1500k(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
     color_array = [color]*240 + [(0,0,0)]*(strip.numPixels()-240)
     interpolate_strip(strip,exit_event,color_array,10.0)
     if not exit_event.is_set():
-    # fill the strip with color_array
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i,color_array[i])
+        # fill the strip with color_array
+        for i in range(strip.numPixels()):
+            strip.setPixelColor(i,color_array[i])
