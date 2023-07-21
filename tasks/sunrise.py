@@ -14,7 +14,7 @@ def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
 
     # Prepare random noise for each pixel and colour channel
     # This is to break up banding in the gradient (all LEDs changing at once)
-    jitter = np.random.randint(-128,128,(strip.numPixels(),3))
+    jitter = np.random.randint(0,255,(strip.numPixels(),3))
 
     # Loop until the exit event is set or the duration is reached
     while elapsed_time < duration and not exit_event.is_set():
