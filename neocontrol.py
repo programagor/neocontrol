@@ -14,6 +14,7 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Load alarm data from the file, or set the default alarm
 ALARM_FILE = "alarm.json"
+TIMEZONE = os.environ.get("TIMEZONE", os.environ.get("TZ", "UTC"))
 DEFAULT_DAYS = [
     "monday",
     "tuesday",
@@ -114,7 +115,7 @@ def schedule_alarm():
         schedule.cancel_job(job)
     alarm_schedulers = []
     for day in alarm_data["days"]:
-        job = getattr(schedule.every(), day).at(alarm_data["time"]).do(alarm_triggered)
+        job = getattr(schedule.every(), day).at(alarm_data["time"], tz=TIMEZONE).do(alarm_triggered)
         alarm_schedulers.append(job)
 
 schedule_alarm()
