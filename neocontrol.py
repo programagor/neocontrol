@@ -14,11 +14,22 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Load alarm data from the file, or set the default alarm
 ALARM_FILE = "alarm.json"
+DEFAULT_DAYS = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+]
 if os.path.exists(ALARM_FILE):
     with open(ALARM_FILE, 'r') as f:
         alarm_data = json.load(f)
+    if "days" not in alarm_data:
+        alarm_data["days"] = DEFAULT_DAYS
 else:
-    alarm_data = {"time": "06:30", "enabled": True}
+    alarm_data = {"time": "06:30", "enabled": True, "days": DEFAULT_DAYS}
     with open(ALARM_FILE, 'w') as f:
         json.dump(alarm_data, f)
 
@@ -95,11 +106,22 @@ def alarm_triggered():
     print(f"[{datetime.datetime.now()}] alarm_triggered: done")
 
 # Initialize the alarm scheduler
-alarm_scheduler = schedule.every().day.at(alarm_data["time"]).do(alarm_triggered)
+alarm_schedulers = []
+
+def schedule_alarm():
+    global alarm_schedulers
+    for job in alarm_schedulers:
+        schedule.cancel_job(job)
+    alarm_schedulers = []
+    for day in alarm_data["days"]:
+        job = getattr(schedule.every(), day).at(alarm_data["time"]).do(alarm_triggered)
+        alarm_schedulers.append(job)
+
+schedule_alarm()
 
 # Function which triggers the alarm on schedule
 def check_alarm():
-    global alarm_scheduler, alarm_update_event
+    global alarm_schedulers, alarm_update_event
     print(f"[{datetime.datetime.now()}] check_alarm() thread: {threading.get_ident()} {threading.current_thread().name}")
     # Never stop checking the alarm
     while True:
@@ -142,7 +164,7 @@ with task_lock:
 # Setting the alarm
 @app.route('/api/v1/alarm', methods=['POST'])
 def set_alarm():
-    global alarm_data, alarm_scheduler
+    global alarm_data, alarm_schedulers
     data = request.get_json()
     
     print(f"[{datetime.datetime.now()}] set_alarm() thread: {threading.get_ident()} {threading.current_thread().name}")
@@ -151,29 +173,27 @@ def set_alarm():
     with alarm_lock:
         print(f"[{datetime.datetime.now()}] set_alarm: entered alarm_lock")
         # If the request contains the "time" key, we will update the alarm time
+        changed = False
         if "time" in data:
             # The supplied time must be in the format HH:MM
             try:
                 print(f"[{datetime.datetime.now()}] set_alarm: setting alarm time to {data['time']}")
                 # Convert the time to HH:MM
                 alarm_data["time"] = datetime.datetime.strptime(data["time"], "%H:%M").strftime("%H:%M")
-                # Before we update the alarm time, we need to cancel the current alarm
-                print(f"[{datetime.datetime.now()}] set_alarm: schedule queue before cancellation: {schedule.jobs}")
-                print(f"[{datetime.datetime.now()}] set_alarm: cancelling alarm_scheduler ({alarm_scheduler}))")
-                schedule.cancel_job(alarm_scheduler)
-                print(f"[{datetime.datetime.now()}] set_alarm: schedule queue after cancellation: {schedule.jobs}")
-                # Create a new alarm_scheduler with the new alarm time
-                print(f"[{datetime.datetime.now()}] set_alarm: scheduling alarm_scheduler")
-                alarm_scheduler = schedule.every().day.at(alarm_data["time"]).do(alarm_triggered)
-                print(f"[{datetime.datetime.now()}] set_alarm: new schedule queue: {schedule.jobs}")
-                # Set the alarm_update_event, so the check_alarm thread will wake up and then go back to sleep with an updated delay
-                print(f"[{datetime.datetime.now()}] set_alarm: setting alarm_update_event")
-                alarm_update_event.set()
+                changed = True
             except:
                 return jsonify({"error": "Invalid time format"}), 400
+        if "days" in data:
+            days = [d.lower() for d in data["days"]]
+            alarm_data["days"] = days
+            changed = True
         # If the request contains the "enabled" key, we will update the alarm enabled state
         if "enabled" in data:
             alarm_data["enabled"] = data["enabled"]
+        if changed:
+            schedule_alarm()
+            print(f"[{datetime.datetime.now()}] set_alarm: setting alarm_update_event")
+            alarm_update_event.set()
     print(f"[{datetime.datetime.now()}] set_alarm: exiting alarm_lock")
 
     # Save the updated alarm data to the file

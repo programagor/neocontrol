@@ -29,6 +29,10 @@ input[type="time"], input[type="checkbox"] {
     margin-left: 0.5rem;
 }
 
+#alarm-days label {
+    margin-right: 0.5rem;
+}
+
 #tasks-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
