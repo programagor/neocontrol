@@ -64,3 +64,7 @@ input.task-button[type="color"] {
 .task-button.active {
     background-color: #75b977;
 }
+
+#alarm-days {
+    margin-top: 10px;
+}
