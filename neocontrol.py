@@ -6,6 +6,7 @@ import datetime
 import json
 import os
 import sys
+from tzlocal import get_localzone_name
 from tasks.common import ws
 
 # Create instance of the Flask app
@@ -14,7 +15,7 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Load alarm data from the file, or set the default alarm
 ALARM_FILE = "alarm.json"
-TIMEZONE = os.environ.get("TIMEZONE", os.environ.get("TZ", "UTC"))
+TIMEZONE = os.environ.get("TIMEZONE") or os.environ.get("TZ") or get_localzone_name()
 DEFAULT_DAYS = [
     "monday",
     "tuesday",
