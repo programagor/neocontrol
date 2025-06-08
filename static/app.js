@@ -12,6 +12,7 @@ if (!authKey) {
 const currentAlarm = document.getElementById("current-alarm");
 const alarmTimeInput = document.getElementById("alarm-time");
 const alarmEnabledInput = document.getElementById("alarm-enabled");
+const dayCheckboxes = document.querySelectorAll(".day-checkbox");
 const tasksContainer = document.getElementById("tasks-container");
 
 let alarmUpdateInterval;
@@ -30,6 +31,29 @@ function formatTimeUntil(seconds) {
     return `in ${hours} hours ${minutes} minutes`;
 }
 
+function getSelectedDays() {
+    return Array.from(dayCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.getAttribute("data-day"));
+}
+
+function sendAlarmUpdate() {
+    clearInterval(alarmUpdateInterval);
+    return fetch("/api/v1/alarm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
+        body: JSON.stringify({
+            time: alarmTimeInput.value,
+            enabled: alarmEnabledInput.checked,
+            days: getSelectedDays()
+        }),
+    }).then(() => {
+        updateAlarm();
+        clearInterval(alarmUpdateInterval);
+        alarmUpdateInterval = setInterval(updateAlarm, 60000);
+    });
+}
+
 let updateAlarmRequest = null;
 function updateAlarm() {
     updateAlarmRequest = fetch("/api/v1/alarm",
@@ -46,6 +70,9 @@ function updateAlarm() {
                 : "Disabled";
             alarmTimeInput.value = data[0].time;
             alarmEnabledInput.checked = data[0].enabled;
+            dayCheckboxes.forEach(cb => {
+                cb.checked = data[0].days.includes(cb.getAttribute("data-day"));
+            });
         });
 }
 
@@ -132,34 +159,8 @@ function init() {
     taskUpdateInterval = setInterval(updateTasks, 60000);
 }
 
-let setAlarmRequest = null;
-alarmTimeInput.addEventListener("change", () => {
-    clearInterval(alarmUpdateInterval);
-    setAlarmRequest = fetch("/api/v1/alarm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
-        body: JSON.stringify({ time: alarmTimeInput.value, enabled: alarmEnabledInput.checked }),
-    });
-    setAlarmRequest.then(() => {
-        updateAlarm();
-        clearInterval(alarmUpdateInterval);
-        alarmUpdateInterval = setInterval(updateAlarm, 60000);
-    });
-});
-
-let setAlarmEnabledRequest = null;
-alarmEnabledInput.addEventListener("change", () => {
-    clearInterval(alarmUpdateInterval);
-    setAlarmEnabledRequest = fetch("/api/v1/alarm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${authKey}` },
-        body: JSON.stringify({ time: alarmTimeInput.value, enabled: alarmEnabledInput.checked }),
-    });
-    setAlarmEnabledRequest.then(() => {
-        updateAlarm();
-        clearInterval(alarmUpdateInterval);
-        alarmUpdateInterval = setInterval(updateAlarm, 60000);
-    });
-});
+alarmTimeInput.addEventListener("change", sendAlarmUpdate);
+alarmEnabledInput.addEventListener("change", sendAlarmUpdate);
+dayCheckboxes.forEach(cb => cb.addEventListener("change", sendAlarmUpdate));
 
 init();
