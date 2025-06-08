@@ -3,4 +3,5 @@ schedule
 gunicorn
 rpi_ws281x
 PyJWT
+pytz
 numpy
