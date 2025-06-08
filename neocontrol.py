@@ -134,6 +134,9 @@ def check_alarm():
         print(f"[{datetime.datetime.now()}] check_alarm: schedule queue: {schedule.jobs}")
         # Check how long until the next alarm
         next_run = schedule.idle_seconds()
+        # Subtract an hour from long waits to avoid DST issues
+        if next_run > 3600:
+            next_run -= 3600
         print(f"[{datetime.datetime.now()}] check_alarm will run again in {next_run} seconds")
         # Wait until the next alarm or until the alarm is updated
         alarm_update_event.wait(next_run)
