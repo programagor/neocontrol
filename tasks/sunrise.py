@@ -2,12 +2,12 @@ from .common import *
 
 def sunrise(strip: ws.PixelStrip, exit_event: threading.Event, arg = None):
 
-    duration = 30.0 * 60
+    duration = 15.0 * 60
     temp_start = 500.0
     temp_end = 6600.0
 
     temp_curve = 1.4
-    bright_curve = 1.0
+    bright_curve = 1.6
 
     start_time = time.time()
     elapsed_time = 0.0

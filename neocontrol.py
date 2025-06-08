@@ -133,6 +133,12 @@ alarm_thread = threading.Thread(target=check_alarm, daemon=True)
 alarm_thread.start()
 print(f"[{datetime.datetime.now()}] check_alarm thread started")
 
+with task_lock:
+    stop_worker_thread()
+    current_task = "fairy_lights"
+    worker_thread = threading.Thread(target=TASKS[current_task], args=(strip, exit_event), daemon=True)
+    worker_thread.start()
+
 # Setting the alarm
 @app.route('/api/v1/alarm', methods=['POST'])
 def set_alarm():
