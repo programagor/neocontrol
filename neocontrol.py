@@ -14,6 +14,17 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Load alarm data from the file, or set the default alarm
 ALARM_FILE = "alarm.json"
+
+# Determine timezone for scheduling. Prefer explicit environment variables,
+# then fall back to the system configuration.
+TIMEZONE = os.environ.get("TIMEZONE") or os.environ.get("TZ")
+if not TIMEZONE:
+    tz_path = "/etc/timezone"
+    if os.path.exists(tz_path):
+        with open(tz_path) as tz_file:
+            TIMEZONE = tz_file.read().strip()
+    else:
+        TIMEZONE = "UTC"
 DEFAULT_DAYS = [
     "monday",
     "tuesday",
@@ -114,7 +125,7 @@ def schedule_alarm():
         schedule.cancel_job(job)
     alarm_schedulers = []
     for day in alarm_data["days"]:
-        job = getattr(schedule.every(), day).at(alarm_data["time"]).do(alarm_triggered)
+        job = getattr(schedule.every(), day).at(alarm_data["time"], tz=TIMEZONE).do(alarm_triggered)
         alarm_schedulers.append(job)
 
 schedule_alarm()
