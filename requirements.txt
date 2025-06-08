@@ -5,3 +5,4 @@ rpi_ws281x
 PyJWT
 pytz
 numpy
+tzlocal
